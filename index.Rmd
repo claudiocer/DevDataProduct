@@ -1,0 +1,125 @@
+---
+title       : Exchange Rates and Exchange Rate Variability
+subtitle    : Exchange Rate Visualizations
+author      : Bernie Pilgram, PhD
+job         : Nonlinear Dynamics & Predictive Analytics
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [bootstrap, quiz, shiny, interactive]   # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+### Introduction 
+---
+## Determinants of exchange rate 
+---
+### __Economic factors__
+
+- Economic policy, controlled and set by government agencies and central banks. 
+- Economic conditions, e.g., balance of trade, inflation, economic growth and health, productivity of an economy
+
+### __Political conditions__
+
+- Internal, regional, and international political circumstances and events, e.g., destabilization of the political situation in Ukraine can negatively affect the value of its currency.
+
+### __Market psychology__
+
+- Market psychology and trader perceptions, e.g., long-term trends, technical trading considerations, "Buy the rumor, sell the fact". 
+
+--- .class #id 
+
+### Exchange rate visualization
+---
+## Can I predict exchange rates?
+---
+### __Let us check this [Shiny App](http://berniepilgram.shinyapps.io/CourseProjects_FXRate/) on exchange rates__
+```{r FX_settings,echo=FALSE,message=FALSE,warning=FALSE}
+# Preset variables for currency exchange rate calculations
+# Load libraries required
+library(quantmod); library(xts)
+
+# Define variables
+currencyA <- "USD"; currencyB <- "EUR"; currencyA_value <- 10000; days_past <- 50
+```
+- Choose from a set of currencies you want to exchange and check how the currency exchange rate changes over time, for example: `r format(currencyA_value,big.mark=",",scientific=F)` USD -> EUR at closing date `r format(Sys.Date()-1, format="%B %d, %Y")` and 
+`r as.integer(days_past)` days prior.
+
+```{r FX_over_time,fig.width=14,fig.height=5,fig.path='figures/',echo=FALSE,message=FALSE,warning=FALSE}
+# Create function for currency conversion using the getFX() function from the
+# quantmod package. Output is a single conversion for a certain currency pair at day
+FXconversion <- function(currencyA,currencyB,amount,days){
+        currency_ratio <- paste(currencyA,"/",currencyB,sep="")
+        FXrate <- xts(get(getFX(currency_ratio,from = Sys.Date()-days,
+                                to = Sys.Date()-days)))
+        amount_converted <- as.numeric(amount*FXrate)
+        return(amount_converted)}
+
+# Create history of currency exchange rates or respectively exchanged currencies
+FXhistory <- function(currencyA,currencyB,amount,days){
+        currency_ratio <- paste(currencyA,"/",currencyB,sep="")
+        FXrate <- xts(get(getFX(currency_ratio,from = Sys.Date()-days,
+                                to = Sys.Date()-1)))
+        amount_history <- amount*FXrate
+        return(amount_history)}
+
+# Calculate amount exchanged
+currencyB_value_current <- FXconversion(currencyA,currencyB,currencyA_value,1)
+# Calculate amount exchanged in the past
+currencyB_value_past <- FXconversion(currencyA,currencyB,currencyA_value,days_past+1)
+# Cacluate exchange rate over time
+FX_over_time <- FXhistory(currencyA,currencyB,currencyA_value,days_past+2)
+
+# Prepare for plot
+FX_over_tmp <- FX_over_time; index <- 2:(length(FX_over_tmp)-1); index[1]<-1
+FX_over_time_line <- FX_over_tmp[-index]
+plot(FX_over_time,main = "Amount as Value of Currency over Time", ylab = currencyA)
+points(FX_over_time[2],pch=19); points(FX_over_time[length(FX_over_time)],pch=19)
+lines(FX_over_time_line,pch=23,lty=2,col="red"); legend("topleft","Current and past date",
+       pch=19, title = "Values at closing dates")
+```
+
+### Ready to join the team?
+
+--- &radio
+### Exchange rates over time - Are you ready to join the team?
+---
+### USD/EUR exchange rate on `r format(Sys.Date()-days_past-1, format="%B %d, %Y")`
+---
+How much money did you loose when you changed `r format(currencyA_value,big.mark=",",scientific=F)` USD to EUR on `r format(Sys.Date()-days_past-1, format="%B %d, %Y")` compared to closing date `r format(Sys.Date()-1, format="%B %d, %Y")`?
+
+1. 100.01 USD
+2. _`r as.double(currencyB_value_current)-as.double(currencyB_value_past)`_ USD
+3. 76.34 USD
+*** .hint
+Please check the previous slide!
+*** .explanation
+Are you ready to join the team?
+
+--- .class #id 
+
+### Research Project and Capstone Project
+---
+## Modeling of exchange rate behaviour 
+---
+### 1. Review of current theories and models
+
+- International parity conditions, e.g., Relative Purchasing Power Parity
+- Balance of payments model, Asset market model, algorithmic trading models
+
+### 2. Development of an exchange-rate model
+
+- Regression analysis (linear, non-linear) of economic factors and variables to model economic factors, a combination of both classical and Bayesian models will be considered.  
+- Strategic Reasoning to model (1) political conditions and (2) market psychology
+
+### 3. Deployment of model at webserver
+
+- User friendly setup: User can choose from a set of economic factors and variables, and from a set of decision points for Strategic Reasoning
+
+
+
+
+
+
+
